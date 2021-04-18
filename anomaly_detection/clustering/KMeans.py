@@ -1,11 +1,9 @@
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
-from anomaly_detection.config import CURRENT_DIR, logger
-from anomaly_detection.algorithms.utils import calculate_distance
+from anomaly_detection.config import CURRENT_DIR, logger, INPUT_DATASET_PATH
+from anomaly_detection.clustering.utils import calculate_distance
 from anomaly_detection.preprocessing.data import prepare_data
 from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
-
-INPUT_DATASET_PATH = f"{CURRENT_DIR}/dataset/Train_data.csv"
 
 
 def train_kmeans(data):

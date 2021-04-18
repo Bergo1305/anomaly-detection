@@ -15,3 +15,4 @@ stdout_logger.setFormatter(
 logger.addHandler(stdout_logger)
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+INPUT_DATASET_PATH = f"{CURRENT_DIR}/dataset/Train_data.csv"

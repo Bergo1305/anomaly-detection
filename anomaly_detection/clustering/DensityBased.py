@@ -1,12 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.cluster import DBSCAN
-from anomaly_detection.config import CURRENT_DIR, logger
+from anomaly_detection.config import CURRENT_DIR, logger, INPUT_DATASET_PATH
 from sklearn.neighbors import NearestNeighbors
 from anomaly_detection.preprocessing.data import prepare_data
 from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
-
-INPUT_DATASET_PATH = f"{CURRENT_DIR}/dataset/Train_data.csv"
 
 
 def choose_optimum_params(data):
