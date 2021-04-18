@@ -1,21 +1,34 @@
+import numpy as np
 from matplotlib import pyplot as plt
-from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
 from anomaly_detection.config import CURRENT_DIR, logger
-from anomaly_detection.algorithms.utils import calculate_distance
+from sklearn.neighbors import NearestNeighbors
 from anomaly_detection.preprocessing.data import prepare_data
 from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
 
 INPUT_DATASET_PATH = f"{CURRENT_DIR}/dataset/Train_data.csv"
 
 
-def train_kmeans(data):
-    NUMBER_OF_CLUSTERS = range(1, 40)
+def choose_optimum_params(data):
+    neighbors = NearestNeighbors(n_neighbors=42)
+    neighbors_fit = neighbors.fit(data)
+    distances, indices = neighbors_fit.kneighbors(data)
+
+    distances = np.sort(distances, axis=0)
+    distances = distances[:, 1]
+    plt.plot(distances)
+    plt.savefig(f"{CURRENT_DIR}/algorithms/plots/DensityBased.jpeg")
+    plt.show()
+
+
+def train_dbscan(data):
+    EPSILON_DISTANCES = range(1, 20)
 
     models = []
-    for num_cluster in NUMBER_OF_CLUSTERS:
-        logger.info(f"K-means clustering with number of cluster = {num_cluster} started...")
-        model = KMeans(n_clusters=num_cluster).fit(data)
-        logger.info(f"K-means clustering with number of cluster = {num_cluster} done...")
+    for epsilon_distance in EPSILON_DISTANCES:
+        logger.info(f"DBSCAN clustering with epsilon distance = {epsilon_distance} started...")
+        model = DBSCAN(eps=epsilon_distance).fit(data)
+        logger.info(f"DBSCAN clustering with epsilon distance = {epsilon_distance} done...")
 
         models.append(model)
 
@@ -23,13 +36,13 @@ def train_kmeans(data):
 
     for model in models:
         logger.info(f"Prediction started...")
-        prediction = model.score(data)
+        prediction = model.labels_(data)
         logger.info(f"Prediction done...")
         predictions.append(prediction)
 
     fig, ax = plt.subplots()
-    ax.plot(NUMBER_OF_CLUSTERS, predictions)
-    plt.savefig(f"{CURRENT_DIR}/algorithms/plots/Kmeans-scores.jpeg")
+    ax.plot(EPSILON_DISTANCES, predictions)
+    plt.savefig(f"{CURRENT_DIR}/algorithms/plots/DensityBased.jpeg")
     plt.show()
 
 
@@ -45,21 +58,16 @@ if __name__ == "__main__":
     data = data.loc[:, data.columns != "class"]
     data_copy = data.copy()
 
-    _best_model = KMeans(n_clusters=3).fit(data)
-    data['cluster'] = _best_model.predict(data)
+    model = DBSCAN(eps=10, min_samples=42).fit(data)
 
-    distances = calculate_distance(data_copy, _best_model)
-
-    OUTLIER_FRACTION = 0.01
-    NUM_OF_OUTLIERS = int(OUTLIER_FRACTION * len(distances))
-    OUTLIERS = distances[-NUM_OF_OUTLIERS:]
+    NUM_OF_OUTLIERS = sum(1 for x in model.labels_ if x == -1)
 
     truth_values = [
-        int(not class_data[_idx]) for (_idx, _) in OUTLIERS
+        int(class_data[_idx]) for _idx, _ in enumerate(model.labels_) if model.labels_[_idx] == -1
     ]
 
     predicted_values = [
-        1 for _ in OUTLIERS
+        1 for _ in range(NUM_OF_OUTLIERS)
     ]
 
     PRECISION_SCORE = precision_score(truth_values, predicted_values)
