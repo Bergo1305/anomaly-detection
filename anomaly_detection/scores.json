@@ -16,5 +16,11 @@
       "RECALL_SCORE": 1,
       "F1_SCORE": 0.6824769433465085,
       "NUM_OF_OUTLIERS": 1004
+  },
+  "isolation-forest": {
+      "PRECISION_SCORE": 0.6067460317460317,
+      "RECALL_SCORE": 1,
+      "F1_SCORE": 0.7552482094344282,
+      "NUM_OF_OUTLIERS": 2520
   }
 }
